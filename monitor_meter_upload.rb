@@ -13,7 +13,9 @@ def upload_measurement(measurement)
   hours = @config.status_interval.to_f / (60 * 60)
 
   # convert watt-hours to watts
-  net_power = measurement.value / hours
+  # I think one 'pulse' is counted as when the led turns off and on,
+  # so divide the number of changes by two here.
+  net_power = measurement.value / (2.0 * hours)
 
   headers = {
     'X-Pvoutput-Apikey' => "#{@config['pvoutput_api_key']}",

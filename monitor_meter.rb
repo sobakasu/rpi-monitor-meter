@@ -4,13 +4,14 @@ $:.unshift File.join(File.dirname(__FILE__), "lib")
 
 require 'monitor_meter/db'
 require 'monitor_meter/config'
+require 'monitor_meter/led'
 
 begin
   @config = MonitorMeter::Config.new
   @db = MonitorMeter::DB.new(@config)
 
   @led = MonitorMeter::LED.new
-  @led.threshold_min = @config['led_threhold_min']
+  @led.threshold_min = @config['led_threshold_min']
   @led.threshold_max = @config['led_threshold_max']
 
   @tick = 0

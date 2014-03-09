@@ -3,7 +3,7 @@ require 'sqlite3'
 module MonitorMeter
   class DB
 
-    DB_PATH = File.join(File.dirname(__FILE__, "..", "..", "monitor_meter.db"))
+    DB_PATH = File.join(File.dirname(__FILE__), "..", "..", "monitor_meter.db")
     
     def initialize(config)
       @db = SQLite3::Database.new DB_PATH
@@ -31,7 +31,7 @@ module MonitorMeter
     #     import data is uploaded)
     def measurements_for_upload
       list = []
-      timestamp = Time.now.to_i - @config.status_interval * 2
+      timestamp = Time.now.to_i - @config.status_interval
       @db.execute("SELECT id, value, created_at FROM measurements " +
                   "WHERE uploaded_pvoutput IS NOT 1 AND created_at < ?",
                   timestamp) do |row|
