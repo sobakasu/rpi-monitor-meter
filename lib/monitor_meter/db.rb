@@ -32,15 +32,23 @@ module MonitorMeter
     def measurements_for_upload
       list = []
       timestamp = Time.now.to_i - @config.status_interval
-      @db.execute("SELECT id, value, created_at FROM measurements " +
-                  "WHERE uploaded_pvoutput IS NOT 1 AND created_at < ?",
-                  timestamp) do |row|
+      max_age = timestamp - 14 * 60 * 60 * 24  # 14 days old
+
+      sql = "SELECT id, value, created_at FROM measurements " +
+        "WHERE uploaded_pvoutput IS NOT 1 AND created_at < ? " +
+        "AND created_at > ?"
+      
+      if @config['skip_zero_upload']
+        sql += " AND value > 0"
+      end
+
+      @db.execute(sql, timestamp, max_age) do |row|
         @measurement = Measurement.new
         @measurement.id = row[0]
         @measurement.value = row[1]
         @measurement.created_at = row[2]
         @measurement.uploaded_pvoutput = row[3]
-        
+
         list << @measurement
       end
       list
