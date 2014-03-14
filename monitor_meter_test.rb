@@ -2,10 +2,12 @@
 
 $:.unshift File.join(File.dirname(__FILE__), "lib")
 
+require 'monitor_meter/config'
 require 'monitor_meter/led'
 
 begin
-  @led = MonitorMeter::LED.new
+  @config = MonitorMeter::Config.new
+  @led = MonitorMeter::LED.new(@config)
   @led.threshold_max = 100
 
   while true do

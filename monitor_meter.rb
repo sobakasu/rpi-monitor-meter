@@ -9,10 +9,9 @@ require 'monitor_meter/led'
 begin
   @config = MonitorMeter::Config.new
   @db = MonitorMeter::DB.new(@config)
+  @led = MonitorMeter::LED.new(@config)
 
-  @led = MonitorMeter::LED.new
-  @led.threshold_min = @config['led_threshold_min']
-  @led.threshold_max = @config['led_threshold_max']
+  puts "led pin: #{@led.pin}"
 
   @tick = 0
   @last_record = @db.last_record_time

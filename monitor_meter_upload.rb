@@ -27,6 +27,9 @@ def upload_measurement(measurement)
     'v4' => net_power,
     'n' => @config['net_import'] ? "1" : "0"
   }
+
+  #params['v5'] = temperature if temperature
+
   body = URI.encode_www_form(params)
   puts body
   response = @http.post(API_ADD_STATUS.path, body, headers)
