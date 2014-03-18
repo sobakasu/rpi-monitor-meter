@@ -11,31 +11,20 @@ module MonitorMeter
     end
 
     def config=(config)
-      @pin = config['temp_gpio_pin']
+      @device_id = config['temp_gpio_device_id']
+    end
+
+    def device_path
+      "/sys/bus/w1/devices/#{@device_id}/w1_slave"
     end
 
     def take_measurement
-      return unless @pin
+      return unless @device_id
 
-      measurement = 0
-
-      # discharge capacitor
-      pin = PiPiper::Pin.new(:pin => @pin, direction: :out)
-      pin.off
-      sleep 0.1
-      
-      # measure time to charge capacitor
-      pin = PiPiper::Pin.new(:pin => @pin, direction: :in)
-      pin.read
-      while(pin.off?) do
-        #puts "value: #{pin.value}, low: #{pin.off?}"
-        pin.read
-        measurement += 1
-        break if measurement >= (@threshold_max || DEFAULT_MAX_THRESHOLD)
-      end
-      
-      #puts "measurement: #{measurement}"
-      measurement
+      data = File.readlines(device_path)
+      return nil unless data && data.length >= 2
+      return nil unless data[0].strip.end_with?("YES") # crc ok
+      return data[1].split(/=/).last.to_i / 1000.0
     end
 
   end
