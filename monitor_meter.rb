@@ -5,11 +5,21 @@ $:.unshift File.join(File.dirname(__FILE__), "lib")
 require 'monitor_meter/db'
 require 'monitor_meter/config'
 require 'monitor_meter/led'
+require 'monitor_meter/temperature_sensor'
+require 'timeout'
+
+def read_temperature
+  return nil unless @temp.emabled?
+  Timeout::timeout(5) do
+    @temp.take_measurement
+  end
+end
 
 begin
   @config = MonitorMeter::Config.new
   @db = MonitorMeter::DB.new(@config)
   @led = MonitorMeter::LED.new(@config)
+  @temp = MonitorMeter::TemperatureSensor(@config)
 
   puts "led pin: #{@led.pin}"
 
@@ -30,7 +40,8 @@ begin
 
     if hour_seconds % @config.status_interval == 0 && @last_record != timestamp
       puts "writing measurement"
-      @db.add_measurement(@tick, timestamp)
+      temp = read_temperature
+      @db.add_measurement(@tick, temp, timestamp)
       @tick = 0
       @last_record = timestamp
     end

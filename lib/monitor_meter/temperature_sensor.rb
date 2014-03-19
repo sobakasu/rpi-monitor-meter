@@ -14,12 +14,16 @@ module MonitorMeter
       @device_id = config['temp_gpio_device_id']
     end
 
+    def enabled?
+      @device_id && File.exist?(device_path)
+    end
+
     def device_path
       "/sys/bus/w1/devices/#{@device_id}/w1_slave"
     end
 
     def take_measurement
-      return unless @device_id
+      return nil unless enabled?
 
       data = File.readlines(device_path)
       return nil unless data && data.length >= 2

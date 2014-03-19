@@ -4,19 +4,9 @@ $:.unshift File.join(File.dirname(__FILE__), "lib")
 
 require 'monitor_meter/config'
 require 'monitor_meter/db'
-require 'monitor_meter/temperature_sensor'
 require 'net/http'
 
 API_ADD_STATUS = URI.parse("http://pvoutput.org/service/r2/addstatus.jsp")
-
-def read_temperature
-  begin
-    @temp = MonitorMeter::TemperatureSensor.new(@config)
-    @temp.take_measurement
-  rescue Exception => e
-    puts "error reading temperature: " + e
-  end
-end
 
 def upload_measurement(measurement)
   time = Time.at(measurement.created_at)
@@ -38,8 +28,7 @@ def upload_measurement(measurement)
     'n' => @config['net_import'] ? "1" : "0"
   }
 
-  temperature = read_temperature
-  params['v5'] = temperature if temperature
+  params['v5'] = measurement.temperature if measurement.temperature
 
   body = URI.encode_www_form(params)
   puts body
