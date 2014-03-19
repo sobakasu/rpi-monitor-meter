@@ -1,4 +1,3 @@
-require 'pi_piper'
 
 module MonitorMeter
 

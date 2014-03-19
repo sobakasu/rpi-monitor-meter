@@ -9,7 +9,7 @@ require 'monitor_meter/temperature_sensor'
 require 'timeout'
 
 def read_temperature
-  return nil unless @temp.emabled?
+  return nil unless @temp.enabled?
   Timeout::timeout(5) do
     @temp.take_measurement
   end
@@ -19,7 +19,7 @@ begin
   @config = MonitorMeter::Config.new
   @db = MonitorMeter::DB.new(@config)
   @led = MonitorMeter::LED.new(@config)
-  @temp = MonitorMeter::TemperatureSensor(@config)
+  @temp = MonitorMeter::TemperatureSensor.new(@config)
 
   puts "led pin: #{@led.pin}"
 
