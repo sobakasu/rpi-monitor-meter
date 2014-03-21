@@ -27,12 +27,10 @@ module MonitorMeter
     # return measurements to be uploaded to pvoutput
     # find measurements where
     #  - uploaded_pvoutput is false
-    #  - created_at is more than status_interval minutes in the past.
-    #    (pvoutput requires that generation data is processed before 
-    #     import data is uploaded)
+    #  - created_at is in the past
     def measurements_for_upload
       list = []
-      timestamp = Time.now.to_i - @config.status_interval
+      timestamp = Time.now.to_i 
       max_age = timestamp - 14 * 60 * 60 * 24  # 14 days old
 
       sql = "SELECT id, value, temperature, created_at, uploaded_pvoutput " +
