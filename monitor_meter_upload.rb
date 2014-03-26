@@ -29,6 +29,7 @@ def upload_measurement(measurement)
   }
 
   params['v5'] = measurement.temperature if measurement.temperature
+  params['v7'] = measurement.noise if measurement.noise
 
   body = URI.encode_www_form(params)
   puts body

@@ -15,6 +15,17 @@ def read_temperature
   end
 end
 
+def read_noise
+  noise_file = @config['noise_file']
+
+  return nil unless noise_file && File.exist?(noise_file)
+  age = Time.now.to_i - File.new(noise_file).mtime.to_i
+  return nil unless age < @config.status_interval
+
+  noise = File.read(noise_file)
+  noise.to_f
+end
+
 begin
   @config = MonitorMeter::Config.new
   @db = MonitorMeter::DB.new(@config)
@@ -41,7 +52,8 @@ begin
     if hour_seconds % @config.status_interval == 0 && @last_record != timestamp
       puts "writing measurement"
       temp = read_temperature
-      @db.add_measurement(@tick, temp, timestamp)
+      noise = read_noise
+      @db.add_measurement(@tick, temp, noise, timestamp)
       @tick = 0
       @last_record = timestamp
     end

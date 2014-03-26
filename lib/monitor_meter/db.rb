@@ -12,11 +12,12 @@ module MonitorMeter
       create_table
     end
 
-    def add_measurement(value, temperature, date)
+    def add_measurement(value, temperature, noise, timestamp)
+      data = [value, temperature, noise, timestamp]
       @db.execute("INSERT INTO measurements " + 
-                  "(value, temperature, created_at) VALUES (?,?,?)",
-                  [value, temperature, date])
-      puts "measurement: #{value}, temp: #{temperature}, date: #{date}"
+                  "(value, temperature, noise, created_at) VALUES (?,?,?,?)",
+                  data)
+      puts "measurement: #{data}"
     end
 
     def last_record_time
@@ -33,7 +34,8 @@ module MonitorMeter
       timestamp = Time.now.to_i 
       max_age = timestamp - 14 * 60 * 60 * 24  # 14 days old
 
-      sql = "SELECT id, value, temperature, created_at, uploaded_pvoutput " +
+      sql = "SELECT id, value, temperature, noise, created_at, " + 
+        "uploaded_pvoutput " +
         "FROM measurements " +
         "WHERE uploaded_pvoutput IS NOT 1 AND created_at < ? " +
         "AND created_at > ?"
@@ -47,8 +49,9 @@ module MonitorMeter
         @measurement.id = row[0]
         @measurement.value = row[1]
         @measurement.temperature = row[2]
-        @measurement.created_at = row[3]
-        @measurement.uploaded_pvoutput = row[4]
+        @measurement.noise = row[3]
+        @measurement.created_at = row[4]
+        @measurement.uploaded_pvoutput = row[5]
 
         list << @measurement
       end
@@ -72,8 +75,15 @@ module MonitorMeter
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         value INTEGER,
         temperature REAL,
+        noise REAL,
         created_at DATE,
         uploaded_pvoutput BOOLEAN
+    );
+    CREATE TABLE IF NOT EXISTS live_observations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key VARCHAR(255),
+        value REAL,
+        updated_at DATE
     );
 SQL
     end
@@ -81,7 +91,8 @@ SQL
   end
 
   class Measurement
-    attr_accessor :id, :value, :temperature, :created_at, :uploaded_pvoutput
+    attr_accessor :id, :value, :temperature, :noise
+    attr_accessor :created_at, :uploaded_pvoutput
 
     def watt_hours
       value
