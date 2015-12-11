@@ -47,7 +47,12 @@ module MonitorMeter
     end
     
     def on?
-      take_measurement <= (@threshold_min || 0)
+      begin
+        take_measurement <= (@threshold_min || 0)
+      rescue Exception => e
+        puts "error reading pin: #{e.message}"
+        @last_value
+      end
     end
 
     def changed?
