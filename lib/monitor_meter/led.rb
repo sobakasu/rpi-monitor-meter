@@ -1,4 +1,4 @@
-require 'pi_piper'
+require 'rpi_gpio'
 
 module MonitorMeter
 
@@ -11,6 +11,7 @@ module MonitorMeter
     attr_reader :last_value
 
     def initialize(config = nil)
+      ::RPi::GPIO.set_numbering :bcm
       @threshold_max = DEFAULT_MAX_THRESHOLD
       @pin = DEFAULT_PIN
       self.config = config unless config.nil?
@@ -28,16 +29,14 @@ module MonitorMeter
       measurement = 0
 
       # discharge capacitor
-      pin = PiPiper::Pin.new(:pin => @pin, direction: :out)
-      pin.off
+      ::RPi::GPIO.setup(@pin, as: :output, initialize: :low)
+      ::RPi::GPIO.set_low(@pin)
       sleep 0.1
       
       # measure time to charge capacitor
-      pin = PiPiper::Pin.new(:pin => @pin, direction: :in)
-      pin.read
-      while(pin.off?) do
-        #puts "value: #{pin.value}, low: #{pin.off?}"
-        pin.read
+      ::RPi::GPIO.setup(@pin, as: :input, pull: :down)
+      while(::RPi::GPIO.low?(@pin)) do
+        sleep 0.005
         measurement += 1
         break if measurement >= (@threshold_max || DEFAULT_MAX_THRESHOLD)
       end
@@ -47,12 +46,7 @@ module MonitorMeter
     end
     
     def on?
-      begin
-        take_measurement <= (@threshold_min || 0)
-      rescue Exception => e
-        puts "error reading pin: #{e.message}"
-        @last_value
-      end
+      take_measurement <= (@threshold_min || 0)
     end
 
     def changed?

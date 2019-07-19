@@ -1,4 +1,6 @@
 *~
+/.bundle
 monitor_meter.db
 monitor_meter.conf
 monitor_meter.rb.pid
+vendor

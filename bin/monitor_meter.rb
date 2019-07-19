@@ -1,20 +1,10 @@
 #!/usr/bin/env ruby
-#
-### BEGIN INIT INFO
-# Provides:       monitor_meter
-# Required-Start: $local_fs
-# Default-Start:  2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: Start Monitor Meter
-# Description: loads monitor meter
-### END INIT INFO
 
-$:.unshift File.join(File.dirname(__FILE__), "lib")
+$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
-require 'monitor_meter/db'
-require 'monitor_meter/config'
-require 'monitor_meter/led'
-require 'monitor_meter/temperature_sensor'
+require 'bundler'
+Bundler.setup
+require 'monitor_meter'
 require 'timeout'
 
 def read_temperature
