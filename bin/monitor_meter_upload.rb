@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-$:.unshift File.join(File.dirname(__FILE__), "lib")
+$:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
-require 'monitor_meter/config'
-require 'monitor_meter/db'
+require 'bundler/setup'
+require 'monitor_meter'
 require 'net/http'
 
 API_ADD_STATUS = URI.parse("http://pvoutput.org/service/r2/addstatus.jsp")

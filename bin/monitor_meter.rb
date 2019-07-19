@@ -3,7 +3,7 @@
 $:.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
 require 'bundler'
-Bundler.setup
+require 'bundler/setup'
 require 'monitor_meter'
 require 'timeout'
 
